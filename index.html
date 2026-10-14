@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="teal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>英语学习知识库 · 从零到能读会写</title>
+<link rel="stylesheet" href="assets/style.css?v=22">
+<link rel="stylesheet" href="assets/theme.css?v=22">
+<link rel="stylesheet" href="assets/audio.css?v=22">
+<link rel="stylesheet" href="assets/interaction.css?v=22">
+</head>
+<body>
+
+<div id="app" v-cloak>
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar" :class="{ open: sideOpen }" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">EN</div>
+      <div class="brand-text">
+        <strong>英语学习知识库</strong>
+        <span>基于 339 个视频字幕构建</span>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <input type="search" id="search" v-model="q" placeholder="搜索知识点 / 词根 / 例句…" autocomplete="off" @keydown.esc="q=''">
+      <kbd v-if="!q">/</kbd>
+      <button v-else class="search-clear" @click="q=''" aria-label="清空">×</button>
+    </div>
+
+    <!-- 搜索结果 -->
+    <div class="search-results" v-if="q.trim() && hits.length">
+      <div class="sr-head">找到 {{ hits.length }} 处</div>
+      <a v-for="h in hits" :key="h.key" class="sr-item" :class="{ on: h.key === cur.key }" @click="go(h)">
+        <span class="sr-where">{{ h.where }}</span>
+        <span class="sr-text" v-html="h.mark"></span>
+      </a>
+    </div>
+    <div class="search-empty" v-else-if="q.trim()">没有找到「{{ q }}」</div>
+
+    <nav class="toc" id="toc" v-show="!q.trim()">
+      <div class="toc-group">
+        <div class="toc-title">开始之前</div>
+        <a href="javascript:void(0)" class="toc-link" :class="{ active: cur.key === 'intro' }" @click="go({ key: 'intro' })">这份资料怎么用</a>
+        <a href="javascript:void(0)" class="toc-link" :class="{ active: cur.key === 'route' }" @click="go({ key: 'route' })">学习路线图</a>
+      </div>
+      <div class="toc-group" v-for="(c, ci) in realChapters" :key="c.id"
+           :class="{ on: cur.chapter === c.id, done: isChapterDone(c) }">
+        <button type="button" class="chap-card" :class="{ on: cur.chapter === c.id }"
+                @click="toggleChapter(c.id)" :aria-expanded="open[c.id] ? 'true' : 'false'">
+          <span class="chap-idx">{{ chapterIdx(c) }}</span>
+          <span class="chap-txt">
+            <span class="chap-t">{{ c.title }}</span>
+            <span class="chap-sub">{{ c.topics.length }} 节<template v-if="chapterProgress(c) >= 100"> · 已读完</template></span>
+          </span>
+          <i class="fold" :class="{ shut: !open[c.id] }">▾</i>
+        </button>
+        <template v-if="open[c.id]">
+          <a v-for="t in c.topics" :key="t.id" href="javascript:void(0)" class="toc-link"
+             :class="{ active: cur.key === t.id, read: isRead(t.id) }" @click="go({ key: t.id, chapter: c.id })">
+            <span class="tl-num">{{ t.num }}</span>
+            <span class="tl-txt">{{ t.short }}</span>
+          </a>
+        </template>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="theme-picker">
+        <div class="tp-label">主题配色<span>点一下马上换</span></div>
+        <div class="tp-row">
+          <button v-for="t in themes" :key="t.id" class="tp-btn" :class="{ on: theme === t.id }"
+                  :style="{ '--sw1': t.sw[0], '--sw2': t.sw[1] }"
+                  @click="setTheme(t.id)" :title="t.desc">
+            <i class="sw"></i><span>{{ t.name }}</span>
+          </button>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>阅读进度</span><span>{{ pct }}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" :style="{ width: pct + '%' }"></div></div>
+      </div>
+      <div class="read-stats">
+        <span><b>{{ readCount }}</b> / {{ totalTopics }} 节已读</span>
+        <button class="reset-read" @click="resetRead" v-if="readCount">重置</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="main" id="main">
+    <button class="menu-btn" id="menuBtn" @click="toggleSide" aria-label="目录">☰</button>
+
+    <!-- 头部 -->
+    <header class="hero" id="intro" v-if="cur.key === 'intro'">
+      <div class="hero-badge">为「英语基础很差」的你而做</div>
+      <h1>英语学习知识库</h1>
+      <p class="hero-sub">
+        这里的东西全部来自你自己收藏的 <strong>339 个</strong>视频字幕 —— 英语兔 240 个 + 八哥 smilebar 99 个 + 罗肖尼 Shawney 2 个。
+        我把它们重新排过顺序，补上了「为什么是这样」的解释，并且对照了网上的主流方法（Krashen 输入假说、Lexile、Nation 的词汇覆盖率研究、Anki、CEFR 等）。
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat"><b>339</b><span>个视频</span></div>
+        <div class="stat"><b>42.1</b><span>小时素材</span></div>
+        <div class="stat"><b>5</b><span>个学习阶段</span></div>
+        <div class="stat"><b>127</b><span>道互动练习</span></div>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ 先看这一条，否则你会走弯路</div>
+        <p>
+          你收藏的这 339 个视频<strong>不是一套课程</strong>，它们是「散装」的：有的讲心态，有的讲语法，有的讲词根，
+          顺序是乱的。如果按 B 站默认的 P1→P262 顺序从头看，你会在第一个视频里就撞上「英语简史」这种背景知识，
+          看完什么也没记住。
+        </p>
+        <p>
+          <strong>正确做法：</strong>先看下面的<a href="javascript:void(0)" @click="go({ key: 'route' })">学习路线图</a>，按阶段走。
+          每个阶段我都标了「必须先看哪几个视频」，以及「看完应该能做到什么」。
+        </p>
+      </div>
+    </header>
+
+    <!-- 路线图 -->
+    <section class="section" id="route" v-else-if="cur.key === 'route'">
+      <h2 class="section-title"><span class="num">导</span>学习路线图</h2>
+      <p class="lead">
+        语言学习是有顺序的，这个顺序<strong>不能颠倒</strong>。核心道理只有一句：
+        <strong class="hl">先有输入，才有输出；先听得懂，才说得出。</strong>
+        下面五个阶段，请一个阶段一个阶段地过，不要跳。
+      </p>
+      <div class="route">
+        <div class="route-item" data-stage="0">
+          <div class="route-num">0</div>
+          <div class="route-body">
+            <h3>摆正心态 <span class="route-time">约 40 分钟</span></h3>
+            <p class="route-why">
+              <strong>为什么放最前面？</strong>因为挡在 90% 中国人前面的不是知识，是错误观念：
+              「我没天赋」「我不敢开口」「我得先背完单词书再学别的」。这些观念不先拆掉，后面的方法你学了也不会用。
+            </p>
+            <div class="route-do">
+              <b>看这 8 个：</b>英语"语感" P87 · 你有外语天赋吗 P89 · 大胆开口的悖论 P88 · 出国学英语 P90 ·
+              为什么你总是读不完一本英文原版书 P158 · 谐音法背单词好不好 P82 · 颠覆你对英语词汇的认知 P5 · 英语断层 P2
+            </div>
+            <div class="route-out"><b>看完你能：</b>说清楚「我为什么学得慢」，并且知道下一步该干什么。</div>
+          </div>
+        </div>
+        <div class="route-item" data-stage="1">
+          <div class="route-num">1</div>
+          <div class="route-body">
+            <h3>语音：把嘴练对 <span class="route-time">约 2 小时</span></h3>
+            <p class="route-why">
+              <strong>为什么第二个是发音？</strong>因为发音是<strong class="hl">唯一有「截止日期」的东西</strong>。
+              语法错了以后能改，单词不认识能背；但发音的肌肉习惯一旦定型<strong>极难纠正</strong> ——
+              这就是 P90 里讲的「石化的错误发音」。而且发音错了，你的听力也会跟着废：你脑中的读音和真实读音对不上，就永远听不懂。
+            </p>
+            <div class="route-do"><b>看这一章：</b>第 1 章全部 7 节（含后来补的音标专项）。</div>
+            <div class="route-out"><b>看完你能：</b>念对 48 个音标，知道自己的嘴型错在哪。</div>
+          </div>
+        </div>
+        <div class="route-item" data-stage="2">
+          <div class="route-num">2</div>
+          <div class="route-body">
+            <h3>语法：搭一个骨架 <span class="route-time">约 3 小时</span></h3>
+            <p class="route-why">
+              <strong>为什么第三是语法？</strong>因为语法是<strong>唯一能让你"没学过也能猜对"的东西</strong>。
+              单词可以一个一个查，可要是句子结构看不懂，查了也白查。
+            </p>
+            <div class="route-do"><b>看这一章：</b>第 2 章全部 13 节。重点 2.2 五种句型、2.9 时态表、2.10 从句。</div>
+            <div class="route-out"><b>看完你能：</b>划出任何长句的主谓宾，知道从句挂在哪。</div>
+          </div>
+        </div>
+        <div class="route-item" data-stage="3">
+          <div class="route-num">3</div>
+          <div class="route-body">
+            <h3>词汇：从死记到推导 <span class="route-time">约 2.5 小时</span></h3>
+            <p class="route-why">
+              <strong>为什么不是先背单词？</strong>因为脱离语境背的词，忘记得最快。
+              先掌握词根词缀的推导方法，再放进阅读里，一个词根能带一串词。
+            </p>
+            <div class="route-do"><b>看这一章：</b>第 3 章全部 11 节。重点 3.3–3.7 词根、3.9 语境。</div>
+            <div class="route-out"><b>看完你能：</b>见到生词先拆词根，而不是直接放弃。</div>
+          </div>
+        </div>
+        <div class="route-item" data-stage="4">
+          <div class="route-num">4</div>
+          <div class="route-body">
+            <h3>输入 + 输出：真正开始用 <span class="route-time">长期</span></h3>
+            <p class="route-why">
+              <strong>为什么放最后？</strong>因为前面四步都是在给你攒本钱。
+              输入的黄金比例是 <strong class="hl">7 : 3</strong>（读听 : 说写），而且输出必须建立在足够的输入之上，否则就是说废话。
+            </p>
+            <div class="route-do"><b>看这两章：</b>第 4 章选书与输入 + 第 5 章说与写，再加附录 C 的每日计划。</div>
+            <div class="route-out"><b>看完你能：</b>给自己排一份能执行的每日计划，并且知道该选什么书。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 章节 -->
+    <section class="section chapter" v-else-if="chapterOf(cur.key)" :id="chapterOf(cur.key).id">
+      <div class="chapter-head">
+        <div class="chapter-label">{{ chapterOf(cur.key).label }}</div>
+        <h2>{{ chapterOf(cur.key).title }}</h2>
+        <p class="chapter-sub" v-if="chapterOf(cur.key).sub">{{ chapterOf(cur.key).sub }}</p>
+      </div>
+      <article class="topic" :id="cur.key" v-html="cur.html"></article>
+    </section>
+
+    <!-- 找不到 -->
+    <section class="section" v-else>
+      <h2 class="section-title">没有这一节</h2>
+      <p class="lead">从左侧目录选一节开始吧。</p>
+    </section>
+
+    <footer class="foot">
+      <p><strong>英语学习知识库</strong> · 由 339 个视频字幕整理而成（原始 262 + 新增 77）</p>
+      <p class="dim">源目录：C:\Users\川\Desktop\B站视频导出　|　字幕：.srt（中英对照）与 .中英对照.txt</p>
+    </footer>
+  </main>
+
+  <!-- 右栏：本页目录 -->
+  <nav class="page-toc" v-if="pageToc.length">
+    <div class="page-toc-title">本页目录<span class="ptt-hint">跳到本节任意小节</span></div>
+    <ul class="page-toc-list">
+      <li v-for="s in pageToc" :key="s.id">
+        <a href="javascript:void(0)" class="page-toc-link" :class="{ active: s.id === activeSec }" @click="jump(s.id)">{{ s.text }}</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<script src="vendor/vue.global.prod.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/interaction.js?v=22"></script>
+<script src="assets/audio.js?v=22"></script>
+<script src="assets/app.js?v=22"></script>
+</body>
+</html>

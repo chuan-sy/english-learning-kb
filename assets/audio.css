@@ -1,0 +1,267 @@
+/* ==========================================================================
+   audio.css — 发音功能样式 v3（跟随 style.css v3「官方文档」配色）
+   依赖：audio.js（提供 .spk 按钮与播放逻辑）
+   ========================================================================== */
+
+/* ---- 小喇叭按钮（内联在文字后面） ---- */
+.spk {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    margin: 0 2px;
+    padding: 0;
+    border: 1px solid var(--accent-line, #c7d5f0);
+    border-radius: 50%;
+    background: var(--accent-bg, #eff3fc);
+    color: var(--accent, #1e3a8a);
+    cursor: pointer;
+    vertical-align: -4px;
+    transition: background .14s, color .14s, border-color .14s, transform .1s;
+    flex: 0 0 auto;
+    line-height: 1;
+    font-size: 0;
+}
+
+.spk svg {
+    width: 12.5px;
+    height: 12.5px;
+    display: block;
+    fill: currentColor;
+}
+
+.spk:hover {
+    background: var(--accent, #1e3a8a);
+    border-color: var(--accent, #1e3a8a);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.spk:active {
+    transform: scale(.92);
+}
+
+.spk.playing {
+    background: var(--good, #0f766e);
+    border-color: var(--good, #0f766e);
+    color: #fff;
+    animation: spk-pulse 1s ease-in-out infinite;
+}
+
+@keyframes spk-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(15, 118, 110, .5); }
+    50%      { box-shadow: 0 0 0 6px rgba(15, 118, 110, 0); }
+}
+
+.spk.loading {
+    opacity: .55;
+    cursor: progress;
+}
+
+/* 大号按钮（句子 / 引文用） */
+.spk.spk-lg {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    vertical-align: -7px;
+}
+.spk.spk-lg svg { width: 15px; height: 15px; }
+
+/* 速度切换（长句用） */
+.spk-slow {
+    display: inline-flex;
+    align-items: center;
+    height: 21px;
+    margin: 0 2px 0 0;
+    padding: 0 8px;
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: 100px;
+    background: var(--bg-panel, #fff);
+    color: var(--ink-3, #6b7280);
+    font-size: 11px;
+    font-family: var(--mono, monospace);
+    cursor: pointer;
+    vertical-align: -4px;
+    transition: background .14s, color .14s, border-color .14s;
+}
+.spk-slow:hover { border-color: var(--accent-2, #0f766e); color: var(--accent-2, #0f766e); }
+.spk-slow.on {
+    background: var(--accent-2, #0f766e);
+    border-color: var(--accent-2, #0f766e);
+    color: #fff;
+}
+
+/* ---- mono 单元格里的发音块 ---- */
+.mono { position: relative; }
+.mono .spk { margin-left: 5px; }
+
+/* ---- 音标卡 ---- */
+.ipa-cell {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    white-space: nowrap;
+}
+.ipa-sym {
+    font-family: var(--mono, monospace);
+    font-size: 1.06em;
+    color: var(--accent, #1e3a8a);
+    letter-spacing: .3px;
+}
+
+/* ---- 成组的音标示范条 ---- */
+.ipa-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px 0 6px;
+    padding: 12px 14px;
+    background: var(--bg-soft, #f8f9fb);
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: var(--radius-s, 6px);
+}
+.ipa-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 11px;
+    background: var(--bg-panel, #fff);
+    border: 1px solid var(--accent-line, #c7d5f0);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: border-color .14s, box-shadow .14s, transform .1s;
+    font-size: 12.5px;
+}
+.ipa-chip:hover {
+    border-color: var(--accent, #1e3a8a);
+    box-shadow: 0 2px 8px rgba(30, 58, 138, .16);
+}
+.ipa-chip:active { transform: scale(.97); }
+.ipa-chip.playing {
+    border-color: var(--good, #0f766e);
+    background: var(--good-bg, #effaf8);
+}
+.ipa-chip .ic-sym {
+    font-family: var(--mono, monospace);
+    font-size: 15px;
+    color: var(--accent, #1e3a8a);
+    font-weight: 600;
+}
+.ipa-chip .ic-word {
+    font-family: var(--mono, monospace);
+    font-size: 11.5px;
+    color: var(--ink-3, #6b7280);
+}
+
+/* 有「音标本音」独立录音的芯片：右侧多一个小圆点，
+   提示点一下会先放音标本音、再放示范词 */
+.ipa-chip.has-sound {
+    padding-right: 10px;
+}
+.ipa-chip.has-sound .ic-word::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 7px;
+    border-radius: 50%;
+    background: var(--accent-2, #0f766e);
+    vertical-align: middle;
+    opacity: .8;
+}
+.ipa-chip.playing .ic-word::after {
+    background: var(--good, #0f766e);
+    opacity: 1;
+    animation: ipaDot .7s ease-in-out infinite;
+}
+@keyframes ipaDot {
+    0%, 100% { transform: scale(1); opacity: .6; }
+    50%      { transform: scale(1.5); opacity: 1; }
+}
+/* 无独立录音（双元音等）：小圆点是空心灰的 */
+.ipa-chip:not(.has-sound) .ic-word::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 7px;
+    border-radius: 50%;
+    border: 1px solid var(--ink-4, #9ca3af);
+    background: transparent;
+    vertical-align: middle;
+    opacity: .55;
+}
+
+/* ---- 例句行的喇叭 ---- */
+.say {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ---- 顶部发音工具栏（改为紧凑的文档式小条） ---- */
+.voice-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+    padding: 8px 12px;
+    background: var(--bg-soft, #f8f9fb);
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: var(--radius-s, 6px);
+    font-size: 12.5px;
+}
+.voice-bar .vb-label {
+    color: var(--ink-3, #6b7280);
+    font-size: 12.5px;
+}
+.voice-seg {
+    display: inline-flex;
+    border: 1px solid var(--line, #e5e7eb);
+    border-radius: 100px;
+    overflow: hidden;
+    background: var(--bg-panel, #fff);
+}
+.voice-seg button {
+    padding: 4px 13px;
+    border: 0;
+    background: transparent;
+    color: var(--ink-3, #6b7280);
+    font-size: 12.5px;
+    font-family: var(--sans, sans-serif);
+    cursor: pointer;
+    transition: background .14s, color .14s;
+    white-space: nowrap;
+}
+.voice-seg button + button { border-left: 1px solid var(--line, #e5e7eb); }
+.voice-seg button.on {
+    background: var(--accent, #1e3a8a);
+    color: #fff;
+    font-weight: 600;
+}
+.voice-bar .vb-hint {
+    color: var(--ink-4, #9ca3af);
+    font-size: 11.5px;
+    margin-left: auto;
+}
+
+/* ---- 跟读模式：高亮正在播放的句子 ---- */
+body.follow-mode .demo.playing,
+body.follow-mode .quote-en.playing {
+    background: var(--warn-bg, #fffbeb);
+    box-shadow: inset 3px 0 0 var(--warn, #b45309);
+}
+
+/* ---- 移动端 ---- */
+@media (max-width: 640px) {
+    .spk { width: 25px; height: 25px; vertical-align: -6px; }
+    .spk svg { width: 14.5px; height: 14.5px; }
+    .voice-bar { gap: 8px; padding: 8px 10px; }
+    .voice-bar .vb-hint { display: none; }
+}
+
+@media print {
+    .spk, .spk-slow, .voice-bar, .ipa-chip { display: none !important; }
+}

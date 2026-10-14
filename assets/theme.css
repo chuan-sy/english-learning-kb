@@ -1,0 +1,370 @@
+/* ============================================================
+   英语学习知识库 · 主题系统
+   4 套配色实时切换：data-theme 写在 <html> 上
+     navy  藏青 × 松绿（原 T23，稳重）
+     ink   墨黑 × 朱红（书本感，适合长时间读）
+     teal  松绿 × 琥珀（清爽）
+     plum  紫檀 × 金（夜晚/护眼）
+   style.css 里 --accent / --accent-2 等变量保留作 navy 的默认值，
+   这里只覆盖差异项，避免两处重复维护。
+   ============================================================ */
+
+/* ---------- 主题切换按钮 ---------- */
+.theme-picker{
+  padding:10px 14px 12px;
+  border-top:1px solid var(--line);
+  flex:0 0 auto;
+}
+.tp-label{
+  display:flex; align-items:baseline; justify-content:space-between;
+  font-size:11px; font-weight:700; color:var(--ink-3);
+  letter-spacing:.4px; margin-bottom:8px;
+}
+.tp-label span{ font-weight:400; font-size:10.5px; color:var(--ink-4) }
+.tp-row{ display:grid; grid-template-columns:1fr 1fr; gap:6px }
+.tp-btn{
+  display:flex; align-items:center; gap:6px;
+  padding:6px 8px;
+  border:1px solid var(--line);
+  border-radius:var(--radius-s);
+  background:var(--bg-panel);
+  color:var(--ink-2);
+  font-size:11.5px; font-weight:600;
+  cursor:pointer;
+  transition:border-color .15s, background .15s, color .15s;
+}
+.tp-btn .sw{
+  width:14px; height:14px; flex:0 0 14px;
+  border-radius:4px;
+  background:linear-gradient(135deg, var(--sw1) 0 50%, var(--sw2) 50% 100%);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+}
+.tp-btn:hover{ border-color:var(--accent); color:var(--accent) }
+.tp-btn.on{
+  border-color:var(--accent);
+  background:var(--accent-bg);
+  color:var(--accent);
+}
+
+/* ---------- 通用：暗色主题的基础面 ---------- */
+html[data-theme="ink"], html[data-theme="plum"]{
+  color-scheme:dark;
+}
+
+/* ============================================================
+   主题 1 · navy —— 藏青 × 松绿（默认，来自 style.css）
+   ============================================================ */
+html[data-theme="navy"]{
+  --accent:#1e3a8a; --accent-d:#172554;
+  --accent-bg:#eff3fc; --accent-line:#c7d5f0;
+  --accent-2:#0f766e; --accent-2-bg:#effaf8; --accent-2-line:#b6e6df;
+}
+
+/* ============================================================
+   主题 2 · ink —— 墨黑纸感 × 朱红（长时间阅读最省眼）
+   仿"线装书"：米白纸底、墨色字、朱红批注
+   ============================================================ */
+html[data-theme="ink"]{
+  --bg:#faf7f0;          /* 宣纸米白，比纯白柔和 */
+  --bg-panel:#faf7f0;
+  --bg-soft:#f3efe4;
+  --bg-code:#efe9da;
+  --bg-side:#f5f1e6;
+  --bg-side-h:#eae3d0;
+
+  --ink:#1c1917;         /* 墨色 */
+  --ink-2:#3f3b36;
+  --ink-3:#6f675c;
+  --ink-4:#a39a8c;
+
+  --line:#ddd3bf;
+  --line-2:#eae2d2;
+
+  --accent:#9a3412;      /* 朱红/赭石 */
+  --accent-d:#7c2d12;
+  --accent-bg:#fdf1e7;
+  --accent-line:#f0cdb4;
+
+  --accent-2:#3f6212;    /* 松烟绿 */
+  --accent-2-bg:#f3f8e8;
+  --accent-2-line:#cfe3ab;
+
+  --good:#3f6212;  --good-bg:#f3f8e8;  --good-line:#cfe3ab;
+  --bad:#b91c1c;   --bad-bg:#fdecec;   --bad-line:#f6c9c9;
+  --warn:#a16207;  --warn-bg:#fdf6e3;  --warn-line:#eddaa0;
+  --info:#9a3412;  --info-bg:#fdf1e7;  --info-line:#f0cdb4;
+  --purple:#7e22ce;--purple-bg:#f7f0fd;--purple-line:#e2ccf7;
+
+  --hl:rgba(253,186,116,.5);
+}
+
+/* ============================================================
+   主题 3 · teal —— 松绿 × 琥珀（最清爽，夏天用）
+   ============================================================ */
+html[data-theme="teal"]{
+  --bg:#f7fbfa;
+  --bg-panel:#ffffff;
+  --bg-soft:#eef6f4;
+  --bg-code:#e8f2f0;
+  --bg-side:#f1f8f6;
+  --bg-side-h:#e3f1ee;
+
+  --ink:#0c1a17;
+  --ink-2:#25403a;
+  --ink-3:#5b7a72;
+  --ink-4:#8ba79f;
+
+  --line:#d3e5e0;
+  --line-2:#e4f0ed;
+
+  --accent:#0f766e;
+  --accent-d:#115e59;
+  --accent-bg:#e6f6f3;
+  --accent-line:#a8ddd6;
+
+  --accent-2:#b45309;    /* 琥珀，作为第二强调色 */
+  --accent-2-bg:#fdf5e6;
+  --accent-2-line:#f2d9a4;
+
+  --good:#0f766e;  --good-bg:#e6f6f3;  --good-line:#a8ddd6;
+  --bad:#be123c;   --bad-bg:#fff1f2;   --bad-line:#fecdd3;
+  --warn:#b45309;  --warn-bg:#fdf5e6;  --warn-line:#f2d9a4;
+  --info:#0e7490;  --info-bg:#ecfafe;  --info-line:#a5e0f4;
+  --purple:#6d28d9;--purple-bg:#f5f3ff;--purple-line:#ddd6fe;
+
+  --hl:rgba(250,204,21,.45);
+}
+
+/* ============================================================
+   主题 4 · plum —— 暗色（晚上关灯看，护眼）
+   深紫檀底 + 柔光文字，不刺眼
+   ============================================================ */
+html[data-theme="plum"]{
+  --bg:#181622;
+  --bg-panel:#201d2e;
+  --bg-soft:#262236;
+  --bg-code:#2b2740;
+  --bg-side:#141220;
+  --bg-side-h:#221f31;
+
+  --ink:#e8e4f2;
+  --ink-2:#c4bcd8;
+  --ink-3:#948aad;
+  --ink-4:#6e6588;
+
+  --line:#332e48;
+  --line-2:#282438;
+
+  --accent:#a78bfa;
+  --accent-d:#c4b5fd;
+  --accent-bg:#262238;
+  --accent-line:#4c4368;
+
+  --accent-2:#5eead4;
+  --accent-2-bg:#1c2b2a;
+  --accent-2-line:#2f5a54;
+
+  --good:#5eead4;  --good-bg:#1c2b2a;  --good-line:#2f5a54;
+  --bad:#fda4af;   --bad-bg:#2e1c24;   --bad-line:#5c3541;
+  --warn:#fcd34d;  --warn-bg:#2b2415;  --warn-line:#5c4a1f;
+  --info:#a78bfa;  --info-bg:#262238;  --info-line:#4c4368;
+  --purple:#d8b4fe;--purple-bg:#2a2036;--purple-line:#544168;
+
+  --hl:rgba(250,204,21,.35);
+
+  --shadow-s:0 1px 2px rgba(0,0,0,.4);
+  --shadow-m:0 2px 8px rgba(0,0,0,.5);
+}
+
+/* 暗色下品牌块/按钮上的白字要能对上 */
+html[data-theme="plum"] .brand-mark{ color:#181622 }
+html[data-theme="plum"] .menu-btn{ background:var(--bg-panel); border-color:var(--line) }
+html[data-theme="plum"] .tp-btn{ background:var(--bg-soft) }
+html[data-theme="plum"] .tp-btn.on{ background:var(--accent-bg) }
+
+/* ============================================================
+   搜索面板（Vue 接管后新增）
+   ============================================================ */
+.search-box{ position:relative }
+.search-clear{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  width:20px; height:20px;
+  border:0; border-radius:50%;
+  background:var(--bg-soft);
+  color:var(--ink-3);
+  font-size:14px; line-height:1;
+  cursor:pointer;
+}
+.search-clear:hover{ background:var(--line); color:var(--ink) }
+
+.search-results{
+  flex:1 1 auto;
+  overflow-y:auto;
+  border-top:1px solid var(--line);
+  padding:6px 0 12px;
+}
+.sr-head{
+  font-size:10.5px; font-weight:700; color:var(--ink-4);
+  letter-spacing:.5px; padding:6px 14px 4px;
+}
+.sr-item{
+  display:block;
+  padding:7px 14px;
+  border-left:2px solid transparent;
+  cursor:pointer;
+  text-decoration:none;
+}
+.sr-item:hover{ background:var(--bg-side-h) }
+.sr-item.on{ border-left-color:var(--accent); background:var(--bg-side-h) }
+.sr-where{
+  display:block;
+  font-size:10.5px; font-weight:700; color:var(--accent-2);
+  margin-bottom:2px;
+}
+.sr-text{
+  display:block;
+  font-size:12.5px; line-height:1.55; color:var(--ink-2);
+  /* 两行截断 */
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.sr-text mark{ background:var(--hl); color:inherit; padding:0 1px; border-radius:2px }
+.search-empty{
+  padding:24px 14px;
+  font-size:12.5px; color:var(--ink-3);
+  border-top:1px solid var(--line);
+}
+
+/* ============================================================
+   Vue 挂载前的隐藏（避免 {{ }} 闪现）
+   ============================================================ */
+[v-cloak]{ display:none !important }
+
+/* ============================================================
+   章节折叠 / 章节卡片
+   ============================================================ */
+.toc-group{ margin-bottom:6px }
+.chap-card{
+  display:flex; align-items:center; gap:9px;
+  width:100%;
+  padding:8px 10px 8px 8px;
+  border:1px solid transparent;
+  border-radius:var(--radius-s);
+  background:transparent;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  transition:background .14s,border-color .14s;
+}
+.chap-card:hover{ background:var(--bg-side-h) }
+.toc-group.on .chap-card{
+  background:var(--accent-bg);
+  border-color:var(--accent-line);
+}
+.chap-idx{
+  flex:0 0 22px;
+  width:22px; height:22px;
+  display:grid; place-items:center;
+  border-radius:6px;
+  background:var(--bg-code);
+  color:var(--ink-4);
+  font-size:11.5px; font-weight:800;
+  font-family:var(--mono);
+  transition:background .14s,color .14s;
+}
+.toc-group.on .chap-idx{
+  background:var(--accent);
+  color:#fff;
+}
+.toc-group.done .chap-idx{
+  background:var(--accent-2);
+  color:#fff;
+}
+.chap-txt{ flex:1 1 auto; min-width:0 }
+.chap-t{
+  display:block;
+  font-size:13.5px; font-weight:700;
+  color:var(--ink-2);
+  line-height:1.35;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.toc-group.on .chap-t{ color:var(--accent-d) }
+.chap-sub{
+  display:block;
+  font-size:10.5px;
+  color:var(--ink-4);
+  margin-top:1px;
+  line-height:1.3;
+}
+.toc-group.done .chap-sub{ color:var(--accent-2) }
+.chap-card .fold{
+  font-style:normal; font-size:10px; color:var(--ink-4);
+  flex:0 0 auto;
+  transition:transform .18s;
+}
+.chap-card .fold.shut{ transform:rotate(-90deg) }
+.chap-card:hover .fold{ color:var(--accent) }
+
+/* 小节链接：编号 + 标题 + 已读小点 */
+.toc-link{
+  display:flex; align-items:flex-start; gap:7px;
+  padding:5px 8px 5px 10px;
+  font-size:13px;
+  line-height:1.4;
+  color:var(--ink-3);
+  text-decoration:none;
+  border-radius:var(--radius-xs);
+  border-left:2px solid var(--line-2);
+  margin-left:11px;
+  transition:background .12s,color .12s,border-color .12s;
+}
+.tl-num{
+  flex:0 0 auto;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--ink-4);
+  padding-top:1px;
+  min-width:24px;
+}
+.tl-txt{ flex:1 1 auto; min-width:0 }
+.toc-link:hover{
+  background:var(--bg-side-h);
+  color:var(--ink);
+}
+.toc-link.active{
+  background:var(--accent-bg);
+  color:var(--accent-d);
+  font-weight:600;
+  border-left-color:var(--accent);
+}
+.toc-link.active .tl-num{ color:var(--accent) }
+.toc-link.read .tl-txt::after{
+  content:'';
+  display:inline-block;
+  width:4px; height:4px;
+  margin-left:6px;
+  border-radius:50%;
+  background:var(--accent-2);
+  vertical-align:2px;
+}
+.toc-link.hidden-by-search{display:none}
+.toc-group.hidden-by-search{display:none}
+
+/* 已读统计 / 重置 */
+.read-stats{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px;
+  margin-top:7px;
+  font-size:11px;
+  color:var(--ink-4);
+}
+.read-stats b{ color:var(--accent); font-weight:700 }
+.reset-read{
+  border:1px solid var(--line);
+  background:var(--bg-panel);
+  color:var(--ink-3);
+  font:inherit; font-size:10.5px;
+  padding:1px 7px;
+  border-radius:4px;
+  cursor:pointer;
+}
+.reset-read:hover{ border-color:var(--bad); color:var(--bad) }
